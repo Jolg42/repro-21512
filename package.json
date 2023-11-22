@@ -1,0 +1,19 @@
+{
+  "name": "prisma-repro",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "@prisma/client": "5.3.1",
+    "prisma": "5.3.1"
+  },
+  "devDependencies": {
+    "@types/node": "~18",
+    "ts-node": "latest",
+    "typescript": "latest"
+  },
+  "scripts": {
+    "start": "ts-node main.ts",
+    "generate": "prisma generate"
+  }
+}
