@@ -7,7 +7,7 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Data {
-  id   Int  @id @default(autoincrement())
-  json Json
+model User {
+    id        Int @id @default(autoincrement())
+    viewCount Int
 }

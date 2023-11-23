@@ -1,4 +1,5 @@
-import { PrismaClient } from "@prisma/client";
+import { Prisma, PrismaClient } from '@prisma/client';
+import { setTimeout } from 'node:timers/promises';
 
 function toMib(b: number): string {
   return (b / 1024 / 1024).toPrecision(4);
@@ -16,63 +17,31 @@ function printMemoryUsage() {
 async function main() {
   const prisma = new PrismaClient();
   await prisma.$connect();
-
-  // feed the table a row with xMB data.
-  const size = 1;
-  const data = Buffer.alloc(1024 * 1024 * size);
-
-  await prisma.data.upsert({
-    where: {
-      id: 1,
-    },
-    create: {
-      json: data,
-    },
-    update: {
-      json: data,
-    },
-  });
+  const PRISMA_EMPTY_STRING = Prisma.sql` `;
 
   console.log(
     "rss (MiB),heapTotal (MiB),heapUsed (MiB),external (MiB),arrayBuffers (MiB)"
   );
   printMemoryUsage();
 
+  const f = async (elements: any[]) => {
+    const els = elements.map((element) => Prisma.sql`${element} as "${element}"`);
+    els.push(PRISMA_EMPTY_STRING);
+    return await prisma.$queryRaw`SELECT ${els}`;
+  };
+
   async function executeQueries() {
-    for (let i = 0; i < 100; i++) {
-      // await prisma.data.findFirst({
-      //   where: {
-      //     id: 1,
-      //   },
-      // });
+    for (let i = 0; i < 200; i++) {
+      const args = Array.from({ length: 20 }, () => 0).map((_, index) =>
+        index % 2 === 0 ? (Math.round(Math.random() * 100) + 36).toString(36) : index,
+      );
 
-      // await prisma.data.findMany({});
-
-      await prisma.data.createMany({
-        data: [
-          {
-            json: Buffer.alloc(1024 * 1024 * size),
-          },
-          {
-            json: Buffer.alloc(1024 * 1024 * size),
-          },
-        ],
-      });
-
-      await prisma.data.update({
-        where: {
-          id: 1,
-        },
-        data: {
-          json: Buffer.alloc(1024 * 1024 * size),
-        },
-      });
-
-      await prisma.data.findMany({
-        where: {
-          id: 1,
-        },
-      });
+      // console.log('going to query');
+      // console.dir(
+        await f(args)
+      // );
+      // console.log('queried');
+      await setTimeout(10);
     }
   }
 

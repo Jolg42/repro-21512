@@ -1,0 +1,14 @@
+version: "3.1"
+services:
+  postgres:
+    image: postgres:13.6-alpine
+    ports:
+      - "5432:5432"
+    restart: unless-stopped
+    # Uncomment the following line to enable query logging
+    # Then restart the container.
+    # command: ['postgres', '-c', 'log_statement=all']
+    environment:
+      - POSTGRES_DB=tests
+      - POSTGRES_USER=prisma
+      - POSTGRES_PASSWORD=prisma
